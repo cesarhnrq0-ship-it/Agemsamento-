@@ -240,7 +240,6 @@ function saveAndFinish(){
   
   var fmt = function(d){ return d.toISOString().replace(/-|:|\.\d+/g, ""); };
   
-  // Arquivo ICS para iPhone (Lembretes / Calendário iOS)
   var icsData = "BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nSUMMARY:" + S.svc[0] + " - Barbearia Di'Quebrada\n" +
                 "DESCRIPTION:Agendamento na Barbearia Di'Quebrada\n" +
                 "DTSTART:" + fmt(dtStart) + "\nDTEND:" + fmt(dtEnd) + "\n" +
@@ -249,7 +248,6 @@ function saveAndFinish(){
   var icsBlob = new Blob([icsData], { type: 'text/calendar;charset=utf-8' });
   var icsUrl = URL.createObjectURL(icsBlob);
 
-  // Link direto para Google Agenda (Android)
   var gCalUrl = "https://calendar.google.com/calendar/render?action=TEMPLATE" +
                 "&text=" + encodeURIComponent(S.svc[0] + " - Barbearia Di'Quebrada") +
                 "&dates=" + fmt(dtStart) + "/" + fmt(dtEnd) +
@@ -290,38 +288,34 @@ function cancelByClient(){
   say("Para cancelar, informe o seu WhatsApp com DDD:");
   askMulti([{key:"tel", ph:"Ex: 11999999999", type:"tel"}], function(inputs){
     var searchTel = inputs.tel.value.replace(/\D/g,"");
-    var handled = false;
-
-    var timer = setTimeout(function(){
-      if(!handled){
-        handled = true;
-        askManualCancel();
-      }
-    }, 1500);
+    say(searchTel, "me");
 
     if(!db){
-      clearTimeout(timer);
-      askManualCancel();
+      say("Não foi possível conectar à base de dados.");
       return;
     }
 
     db.ref('agendamentos').once('value').then(function(snapshot){
-      if(handled) return;
-      handled = true;
-      clearTimeout(timer);
-
       var data = snapshot.val();
       var found = [];
-      for(var day in data){
-        for(var time in data[day]){
-          if(data[day][time].tel === searchTel){
-            found.push({day: day, time: time, info: data[day][time]});
+
+      if(data){
+        for(var day in data){
+          for(var time in data[day]){
+            var item = data[day][time];
+            if(item.tel && item.tel.replace(/\D/g,"") === searchTel){
+              found.push({day: day, time: time, info: item});
+            }
           }
         }
       }
 
       if(found.length === 0){
-        askManualCancel();
+        say("Nenhum agendamento encontrado para este número.");
+        chips([{t:"Tentar outro número", act:"retry"}, {t:"Voltar ao início", act:"home"}], function(it){
+          if(it.act === "retry") cancelByClient();
+          else start();
+        });
       } else {
         say("Encontramos os seguintes agendamentos:");
         ctl.innerHTML = "";
@@ -333,33 +327,24 @@ function cancelByClient(){
           ctl.appendChild(btn);
         });
       }
-    }).catch(function(){
-      if(!handled){
-        handled = true;
-        clearTimeout(timer);
-        askManualCancel();
-      }
+    }).catch(function(err){
+      say("Erro ao procurar agendamentos. Tente novamente.");
     });
-  });
-}
-
-function askManualCancel(){
-  say("Informe a Data (AAAA-MM-DD) e Horário (HH:MM) do agendamento a cancelar:");
-  askMulti([
-    {key:"date", ph:"Data no formato 2026-09-29"},
-    {key:"time", ph:"Horário ex: 14:00"}
-  ], function(inputs){
-    var dKey = inputs.date.value.trim();
-    var tKey = inputs.time.value.trim().replace(":","");
-    deleteBooking(dKey, tKey, true);
   });
 }
 
 function deleteBooking(dateKey, timeKey, isClient){
   if(confirm("Tem certeza que deseja cancelar e liberar este horário?")){
-    if(db) db.ref('agendamentos/' + dateKey + '/' + timeKey).remove();
-    alert("Agendamento cancelado com sucesso!");
-    if(isClient) start(); else loadAdminPanel();
+    if(db){
+      db.ref('agendamentos/' + dateKey + '/' + timeKey).remove().then(function(){
+        alert("Agendamento cancelado com sucesso!");
+        if(isClient) start(); else loadAdminPanel();
+      }).catch(function(err){
+        alert("Erro ao cancelar: " + err.message);
+      });
+    } else {
+      alert("Erro de conexão com a base de dados.");
+    }
   }
 }
 

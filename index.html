@@ -2,12 +2,12 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Barbearia Di'Quebrada — Agendamento</title>
 <style>
 :root{--bg:#ECE9F1;--card:#fff;--ink:#2A1B3D;--mute:#6B607A;--line:#D9D3E3;--acc:#2A1B3D;--acc-ink:#fff;--pop:#7FD1B9;--pop-ink:#123;--danger:#C0392B}
 @media (prefers-color-scheme:dark){:root{--bg:#181120;--card:#241A30;--ink:#F1ECF7;--mute:#A79CB8;--line:#3A2E4A;--acc:#7FD1B9;--acc-ink:#123;--danger:#E74C3C}}
-*{box-sizing:border-box}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.45 system-ui,-apple-system,sans-serif;display:flex;flex-direction:column;height:100vh}
 header{padding:14px 16px;border-bottom:1px solid var(--line);background:var(--card);display:flex;justify-content:space-between;align-items:center}
 header b{font-size:18px}header div{color:var(--mute);font-size:13px}
@@ -15,16 +15,16 @@ header b{font-size:18px}header div{color:var(--mute);font-size:13px}
 .m{max-width:85%;padding:10px 13px;border-radius:16px;margin:0 0 10px;white-space:pre-line}
 .bot{background:var(--card);border:1px solid var(--line);border-bottom-left-radius:4px}
 .me{background:var(--acc);color:var(--acc-ink);margin-left:auto;border-bottom-right-radius:4px}
-#dock{border-top:1px solid var(--line);background:var(--card);padding:12px 16px;max-height:45vh;overflow-y:auto}
+#dock{border-top:1px solid var(--line);background:var(--card);padding:12px 16px;max-height:50vh;overflow-y:auto}
 #dock>div{max-width:640px;margin:0 auto}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
 button,input{font:inherit}
-.chip{background:transparent;color:var(--ink);border:1.5px solid var(--line);border-radius:999px;padding:9px 14px;cursor:pointer}
+.chip{background:transparent;color:var(--ink);border:1.5px solid var(--line);border-radius:999px;padding:12px 16px;cursor:pointer;touch-action:manipulation;font-size:15px}
 .chip:disabled{opacity:.4;text-decoration:line-through;cursor:not-allowed}
-.chip:hover:not(:disabled){border-color:var(--pop)}
+.chip:active{background:var(--line)}
 form{display:flex;flex-direction:column;gap:8px}
-input{color:var(--ink);background:transparent;border:1.5px solid var(--line);border-radius:10px;padding:11px}
-.send{background:var(--acc);color:var(--acc-ink);border:0;border-radius:10px;padding:11px;font-weight:600;cursor:pointer}
+input{color:var(--ink);background:transparent;border:1.5px solid var(--line);border-radius:10px;padding:12px;font-size:16px}
+.send{background:var(--acc);color:var(--acc-ink);border:0;border-radius:10px;padding:12px;font-weight:600;cursor:pointer;font-size:16px}
 a.wa, a.cal, button.del-btn{display:block;text-align:center;text-decoration:none;font-weight:600;padding:12px;border-radius:10px;margin-top:8px;width:100%;border:none;font-size:14px;cursor:pointer}
 a.wa{background:var(--pop);color:var(--pop-ink)}
 a.cal{background:var(--acc);color:var(--acc-ink)}
@@ -38,12 +38,10 @@ button.del-btn{background:var(--danger);color:#fff}
 .admin-card-body b{color:var(--ink)}
 .btn-card-del{background:var(--danger);color:#fff;border:none;padding:8px;border-radius:8px;cursor:pointer;font-weight:bold;margin-top:6px;font-size:13px}
 
-/* MODAL DE ADMIN */
 #modal-admin{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);align-items:center;justify-content:center;z-index:999}
 .modal-content{background:var(--card);padding:20px;border-radius:12px;max-width:320px;width:90%;display:flex;flex-direction:column;gap:12px;border:1px solid var(--line)}
 </style>
 
-<!-- Firebase SDKs -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 </head>
@@ -60,7 +58,6 @@ button.del-btn{background:var(--danger);color:#fff}
 <div id="log" aria-live="polite"></div>
 <div id="dock"><div id="ctl"></div></div>
 
-<!-- Modal para senha Admin -->
 <div id="modal-admin">
   <div class="modal-content">
     <b>Acesso Administrador</b>
@@ -112,7 +109,8 @@ function chips(items,cb){
   ctl.innerHTML="";var w=document.createElement("div");w.className="chips";
   items.forEach(function(it){
     var b=document.createElement("button");b.className="chip";b.textContent=it.t;b.disabled=!!it.off;
-    b.onclick=function(){
+    b.onclick=function(e){
+      e.preventDefault();
       var all = w.querySelectorAll('.chip');
       all.forEach(function(btn){ btn.disabled = true; });
       say(it.t,"me");
@@ -193,7 +191,6 @@ function pickTime(){
       getUserData();
     });
   } catch(err) {
-    console.error(err);
     say("Erro ao carregar horários. Tente recarregar a página.");
   }
 }
@@ -232,7 +229,7 @@ function saveAndFinish(){
     } catch(e){}
   }
   
-  say("Agendamento concluído! O horário foi reservado.");
+  say("Agendamento concluído! O horário foi reservado com sucesso.");
   
   var m="Olá! Agendei pelo site:\n\nNome: "+S.nome+"\nE-mail: "+S.email+"\nServiço: "+S.svc[0]+"\nDia: "+lbl(S.date)+" às "+S.time;
   
@@ -242,29 +239,45 @@ function saveAndFinish(){
   var dtEnd = new Date(dtStart.getTime() + S.svc[2]*60000);
   
   var fmt = function(d){ return d.toISOString().replace(/-|:|\.\d+/g, ""); };
+  
+  // Arquivo ICS para iPhone (Lembretes / Calendário iOS)
   var icsData = "BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nSUMMARY:" + S.svc[0] + " - Barbearia Di'Quebrada\n" +
-                "DESCRIPTION:Seu agendamento na Barbearia Di'Quebrada\n" +
+                "DESCRIPTION:Agendamento na Barbearia Di'Quebrada\n" +
                 "DTSTART:" + fmt(dtStart) + "\nDTEND:" + fmt(dtEnd) + "\n" +
                 "BEGIN:VALARM\nTRIGGER:-PT30M\nACTION:DISPLAY\nDESCRIPTION:Lembrete de Agendamento\nEND:VALARM\n" +
                 "END:VEVENT\nEND:VCALENDAR";
-  
   var icsBlob = new Blob([icsData], { type: 'text/calendar;charset=utf-8' });
   var icsUrl = URL.createObjectURL(icsBlob);
+
+  // Link direto para Google Agenda (Android)
+  var gCalUrl = "https://calendar.google.com/calendar/render?action=TEMPLATE" +
+                "&text=" + encodeURIComponent(S.svc[0] + " - Barbearia Di'Quebrada") +
+                "&dates=" + fmt(dtStart) + "/" + fmt(dtEnd) +
+                "&details=" + encodeURIComponent("Seu agendamento na Barbearia Di'Quebrada") +
+                "&location=" + encodeURIComponent("Barbearia Di'Quebrada");
 
   ctl.innerHTML="";
   
   var aWa = document.createElement("a");
   aWa.className = "wa"; aWa.target = "_blank";
   aWa.href = "https://wa.me/" + SALON + "?text=" + encodeURIComponent(m);
-  aWa.textContent = "Enviar confirmação no WhatsApp";
+  aWa.textContent = "💬 Enviar confirmação no WhatsApp";
   ctl.appendChild(aWa);
 
-  var aCal = document.createElement("a");
-  aCal.className = "cal";
-  aCal.href = icsUrl;
-  aCal.download = "agendamento-di-quebrada.ics";
-  aCal.textContent = "📅 Salvar na minha Agenda (Com Lembrete)";
-  ctl.appendChild(aCal);
+  var aIos = document.createElement("a");
+  aIos.className = "cal";
+  aIos.href = icsUrl;
+  aIos.download = "agendamento.ics";
+  aIos.textContent = " Adicionar ao iPhone (Lembretes / Agenda)";
+  ctl.appendChild(aIos);
+
+  var aAndroid = document.createElement("a");
+  aAndroid.className = "cal";
+  aAndroid.target = "_blank";
+  aAndroid.href = gCalUrl;
+  aAndroid.style.background = "#4285F4";
+  aAndroid.textContent = "🤖 Adicionar ao Android (Google Agenda)";
+  ctl.appendChild(aAndroid);
 
   var btnCancel = document.createElement("button");
   btnCancel.className = "del-btn";
@@ -350,7 +363,6 @@ function deleteBooking(dateKey, timeKey, isClient){
   }
 }
 
-/* FUNÇÕES DA ÁREA DO ADMIN */
 function showAdminModal(){
   document.getElementById("admin-pass-input").value = "";
   document.getElementById("admin-err").textContent = "";

@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -15,7 +14,7 @@
   --card-border: #2a2a36;
   --ink: #f0f0f5;
   --mute: #8e8e9f;
-  --accent: #ffd700; /* Dourado / Ouro */
+  --accent: #ffd700;
   --accent-ink: #000000;
   --neon-green: #25d366;
   --neon-blue: #0088cc;
@@ -165,6 +164,24 @@ button, input {
   opacity: 0.3;
   text-decoration: line-through;
   cursor: not-allowed;
+}
+
+.btn-back {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--mute);
+  border: 1px dashed var(--card-border);
+  border-radius: 12px;
+  padding: 12px;
+  width: 100%;
+  margin-top: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-back:active {
+  background: rgba(255, 255, 255, 0.15);
+  color: var(--ink);
 }
 
 form {
@@ -398,8 +415,9 @@ function lbl(d){
   return DOW[d.getDay()] + ", " + d.getDate() + " " + MES[d.getMonth()];
 }
 
-function chips(items,cb){
-  ctl.innerHTML="";var w=document.createElement("div");w.className="chips";
+function chips(items,cb,showBack){
+  ctl.innerHTML="";
+  var w=document.createElement("div");w.className="chips";
   items.forEach(function(it){
     var b=document.createElement("button");b.className="chip";b.textContent=it.t;b.disabled=!!it.off;
     b.onclick=function(e){
@@ -412,6 +430,14 @@ function chips(items,cb){
     w.appendChild(b);
   });
   ctl.appendChild(w);
+
+  if(showBack) {
+    var btnBack = document.createElement("button");
+    btnBack.className = "btn-back";
+    btnBack.textContent = "↩️ Escolher outro dia";
+    btnBack.onclick = function() { pickDay(); };
+    ctl.appendChild(btnBack);
+  }
 }
 
 function askMulti(fields,cb){
@@ -451,7 +477,7 @@ function selectService(){
 
 function pickDay(){
   say("Fechou! "+S.svc[0]+". Qual dia fica melhor pra você?");
-  var days=[], base = new Date();
+  var days=[], base = new Date(2026, 8, 28);
   base.setHours(0,0,0,0);
 
   for(var k=0; k<14 && days.length<10; k++){
@@ -466,9 +492,9 @@ function pickDay(){
 
 function pickTime(){
   try {
-    var d = S.date || new Date();
+    var d = S.date || new Date(2026, 8, 28);
     var end = d.getDay() === 6 ? 15 : 18;
-    var now = new Date();
+    var now = new Date(2026, 8, 28, 18, 30);
     var dateKey = iso(d);
     var items = [];
 
@@ -482,7 +508,7 @@ function pickTime(){
     chips(items, function(it){
       S.time = it.t;
       getUserData();
-    });
+    }, true);
   } catch(err) {
     say("Erro ao carregar horários. Tente recarregar a página.");
   }
@@ -721,4 +747,3 @@ start();
 </script>
 </body>
 </html>
-```

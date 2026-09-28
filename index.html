@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -240,13 +241,25 @@ function saveAndFinish(){
   
   var fmt = function(d){ return d.toISOString().replace(/-|:|\.\d+/g, ""); };
   
-  var icsData = "BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nSUMMARY:" + S.svc[0] + " - Barbearia Di'Quebrada\n" +
-                "DESCRIPTION:Agendamento na Barbearia Di'Quebrada\n" +
-                "DTSTART:" + fmt(dtStart) + "\nDTEND:" + fmt(dtEnd) + "\n" +
-                "BEGIN:VALARM\nTRIGGER:-PT30M\nACTION:DISPLAY\nDESCRIPTION:Lembrete de Agendamento\nEND:VALARM\n" +
-                "END:VEVENT\nEND:VCALENDAR";
-  var icsBlob = new Blob([icsData], { type: 'text/calendar;charset=utf-8' });
-  var icsUrl = URL.createObjectURL(icsBlob);
+  // Ficheiro ICS dinâmico configurado para iPhone / iOS Reminders
+  var icsContent = "BEGIN:VCALENDAR\n" +
+                   "VERSION:2.0\n" +
+                   "PRODID:-//Barbearia DiQuebrada//PT\n" +
+                   "BEGIN:VEVENT\n" +
+                   "SUMMARY:" + S.svc[0] + " - Barbearia Di'Quebrada\n" +
+                   "DESCRIPTION:Lembrete de agendamento do corte/barba com Barbearia Di'Quebrada.\n" +
+                   "LOCATION:Barbearia Di'Quebrada\n" +
+                   "DTSTART:" + fmt(dtStart) + "\n" +
+                   "DTEND:" + fmt(dtEnd) + "\n" +
+                   "BEGIN:VALARM\n" +
+                   "TRIGGER:-PT1H\n" +
+                   "ACTION:DISPLAY\n" +
+                   "DESCRIPTION:Seu agendamento é daqui a 1 hora!\n" +
+                   "END:VALARM\n" +
+                   "END:VEVENT\n" +
+                   "END:VCALENDAR";
+
+  var icsDataUri = "data:text/calendar;charset=utf8," + encodeURIComponent(icsContent);
 
   var gCalUrl = "https://calendar.google.com/calendar/render?action=TEMPLATE" +
                 "&text=" + encodeURIComponent(S.svc[0] + " - Barbearia Di'Quebrada") +
@@ -264,8 +277,8 @@ function saveAndFinish(){
 
   var aIos = document.createElement("a");
   aIos.className = "cal";
-  aIos.href = icsUrl;
-  aIos.download = "agendamento.ics";
+  aIos.href = icsDataUri;
+  aIos.download = "agendamento-barbearia.ics";
   aIos.textContent = " Adicionar ao iPhone (Lembretes / Agenda)";
   ctl.appendChild(aIos);
 
@@ -403,6 +416,12 @@ function loadAdminPanel(){
     log.innerHTML = html;
   });
 }
+
+start();
+</script>
+</body>
+</html>
+```
 
 start();
 </script>

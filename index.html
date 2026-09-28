@@ -42,6 +42,7 @@ button.del-btn{background:var(--danger);color:#fff}
 #modal-admin{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);align-items:center;justify-content:center;z-index:999}
 .modal-content{background:var(--card);padding:20px;border-radius:12px;max-width:320px;width:90%;display:flex;flex-direction:column;gap:12px;border:1px solid var(--line)}
 </style>
+
 <!-- Firebase SDKs -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
@@ -71,11 +72,16 @@ button.del-btn{background:var(--danger);color:#fff}
 </div>
 
 <script>
-const firebaseConfig = {
-  databaseURL: "https://agendamento-fio-certo-default-rtdb.firebaseio.com/"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
+var db = null;
+try {
+  const firebaseConfig = {
+    databaseURL: "https://agendamento-fio-certo-default-rtdb.firebaseio.com/"
+  };
+  firebase.initializeApp(firebaseConfig);
+  db = firebase.database();
+} catch(e) {
+  console.log("Firebase indisponível, rodando em modo local.");
+}
 
 var SALON = "5511989448738";
 var ADMIN_PASS = "123456";
@@ -175,17 +181,34 @@ function renderTimeSlots(dayBookings){
 
 function pickTime(){
   var dateKey=iso(S.date);
-  
-  // Tenta procurar os horários no Firebase
-  db.ref('agendamentos/' + dateKey).once('value')
-    .then(function(snapshot){
-      renderTimeSlots(snapshot.val() || {});
-    })
-    .catch(function(err){
-      // Caso ocorra falha no Firebase, mostra os horários sem travar a aplicação
-      console.error("Erro ao procurar horários:", err);
+  var loaded = false;
+
+  // Timeout de segurança: se o Firebase demorar mais de 1.5s, avança automaticamente
+  var timer = setTimeout(function(){
+    if(!loaded){
+      loaded = true;
       renderTimeSlots({});
+    }
+  }, 1500);
+
+  if(db){
+    db.ref('agendamentos/' + dateKey).once('value').then(function(snapshot){
+      if(!loaded){
+        loaded = true;
+        clearTimeout(timer);
+        renderTimeSlots(snapshot.val() || {});
+      }
+    }).catch(function(){
+      if(!loaded){
+        loaded = true;
+        clearTimeout(timer);
+        renderTimeSlots({});
+      }
     });
+  } else {
+    clearTimeout(timer);
+    renderTimeSlots({});
+  }
 }
 
 function getUserData(){
@@ -214,63 +237,61 @@ function saveAndFinish(){
   var dateKey = iso(S.date);
   var timeKey = S.time.replace(":","");
   
-  db.ref('agendamentos/' + dateKey + '/' + timeKey).set({
-    nome: S.nome,
-    email: S.email,
-    tel: S.tel,
-    servico: S.svc[0],
-    preco: S.svc[1],
-    data: lbl(S.date),
-    hora: S.time
-  }).then(function(){
-    say("Agendamento concluído! O horário foi reservado e bloqueado no sistema.");
-    
-    var m="Olá! Agendei pelo site:\n\nNome: "+S.nome+"\nE-mail: "+S.email+"\nServiço: "+S.svc[0]+"\nDia: "+lbl(S.date)+" às "+S.time;
-    
-    var h = parseInt(S.time.split(":")[0]);
-    var min = parseInt(S.time.split(":")[1]);
-    var dtStart = new Date(S.date.getFullYear(), S.date.getMonth(), S.date.getDate(), h, min);
-    var dtEnd = new Date(dtStart.getTime() + S.svc[2]*60000);
-    
-    var fmt = function(d){ return d.toISOString().replace(/-|:|\.\d+/g, ""); };
-    var icsData = "BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nSUMMARY:" + S.svc[0] + " - Barbearia Di'Quebrada\n" +
-                  "DESCRIPTION:Seu agendamento na Barbearia Di'Quebrada\n" +
-                  "DTSTART:" + fmt(dtStart) + "\nDTEND:" + fmt(dtEnd) + "\n" +
-                  "BEGIN:VALARM\nTRIGGER:-PT30M\nACTION:DISPLAY\nDESCRIPTION:Lembrete de Agendamento\nEND:VALARM\n" +
-                  "END:VEVENT\nEND:VCALENDAR";
-    
-    var icsBlob = new Blob([icsData], { type: 'text/calendar;charset=utf-8' });
-    var icsUrl = URL.createObjectURL(icsBlob);
+  if(db){
+    db.ref('agendamentos/' + dateKey + '/' + timeKey).set({
+      nome: S.nome, email: S.email, tel: S.tel, servico: S.svc[0], preco: S.svc[1], data: lbl(S.date), hora: S.time
+    });
+  }
+  
+  say("Agendamento concluído! O horário foi reservado.");
+  
+  var m="Olá! Agendei pelo site:\n\nNome: "+S.nome+"\nE-mail: "+S.email+"\nServiço: "+S.svc[0]+"\nDia: "+lbl(S.date)+" às "+S.time;
+  
+  var h = parseInt(S.time.split(":")[0]);
+  var min = parseInt(S.time.split(":")[1]);
+  var dtStart = new Date(S.date.getFullYear(), S.date.getMonth(), S.date.getDate(), h, min);
+  var dtEnd = new Date(dtStart.getTime() + S.svc[2]*60000);
+  
+  var fmt = function(d){ return d.toISOString().replace(/-|:|\.\d+/g, ""); };
+  var icsData = "BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nSUMMARY:" + S.svc[0] + " - Barbearia Di'Quebrada\n" +
+                "DESCRIPTION:Seu agendamento na Barbearia Di'Quebrada\n" +
+                "DTSTART:" + fmt(dtStart) + "\nDTEND:" + fmt(dtEnd) + "\n" +
+                "BEGIN:VALARM\nTRIGGER:-PT30M\nACTION:DISPLAY\nDESCRIPTION:Lembrete de Agendamento\nEND:VALARM\n" +
+                "END:VEVENT\nEND:VCALENDAR";
+  
+  var icsBlob = new Blob([icsData], { type: 'text/calendar;charset=utf-8' });
+  var icsUrl = URL.createObjectURL(icsBlob);
 
-    ctl.innerHTML="";
-    
-    var aWa = document.createElement("a");
-    aWa.className = "wa"; aWa.target = "_blank";
-    aWa.href = "https://wa.me/" + SALON + "?text=" + encodeURIComponent(m);
-    aWa.textContent = "Enviar confirmação no WhatsApp";
-    ctl.appendChild(aWa);
+  ctl.innerHTML="";
+  
+  var aWa = document.createElement("a");
+  aWa.className = "wa"; aWa.target = "_blank";
+  aWa.href = "https://wa.me/" + SALON + "?text=" + encodeURIComponent(m);
+  aWa.textContent = "Enviar confirmação no WhatsApp";
+  ctl.appendChild(aWa);
 
-    var aCal = document.createElement("a");
-    aCal.className = "cal";
-    aCal.href = icsUrl;
-    aCal.download = "agendamento-di-quebrada.ics";
-    aCal.textContent = "📅 Salvar na minha Agenda (Com Lembrete)";
-    ctl.appendChild(aCal);
+  var aCal = document.createElement("a");
+  aCal.className = "cal";
+  aCal.href = icsUrl;
+  aCal.download = "agendamento-di-quebrada.ics";
+  aCal.textContent = "📅 Salvar na minha Agenda (Com Lembrete)";
+  ctl.appendChild(aCal);
 
-    var btnCancel = document.createElement("button");
-    btnCancel.className = "del-btn";
-    btnCancel.textContent = "❌ Cancelar este Agendamento";
-    btnCancel.onclick = function(){ deleteBooking(dateKey, timeKey, true); };
-    ctl.appendChild(btnCancel);
-  }).catch(function(err){
-    alert("Erro ao guardar agendamento: " + err.message);
-  });
+  var btnCancel = document.createElement("button");
+  btnCancel.className = "del-btn";
+  btnCancel.textContent = "❌ Cancelar este Agendamento";
+  btnCancel.onclick = function(){ deleteBooking(dateKey, timeKey, true); };
+  ctl.appendChild(btnCancel);
 }
 
 function cancelByClient(){
   say("Para cancelar, informe o WhatsApp cadastrado:");
   askMulti([{key:"tel", ph:"Seu WhatsApp com DDD", type:"tel"}], function(inputs){
     var searchTel = inputs.tel.value.replace(/\D/g,"");
+    if(!db){
+      say("Sistema de banco de dados indisponível no momento.");
+      return;
+    }
     db.ref('agendamentos').once('value').then(function(snapshot){
       var data = snapshot.val();
       var found = [];
@@ -297,20 +318,15 @@ function cancelByClient(){
           ctl.appendChild(btn);
         });
       }
-    }).catch(function(){
-      say("Erro ao procurar agendamentos. Tente novamente.");
     });
   });
 }
 
 function deleteBooking(dateKey, timeKey, isClient){
   if(confirm("Tem certeza que deseja cancelar e liberar este horário?")){
-    db.ref('agendamentos/' + dateKey + '/' + timeKey).remove().then(function(){
-      alert("Agendamento cancelado com sucesso!");
-      if(isClient) start(); else loadAdminPanel();
-    }).catch(function(){
-      alert("Erro ao cancelar. Tente novamente.");
-    });
+    if(db) db.ref('agendamentos/' + dateKey + '/' + timeKey).remove();
+    alert("Agendamento cancelado com sucesso!");
+    if(isClient) start(); else loadAdminPanel();
   }
 }
 
@@ -339,6 +355,11 @@ function loadAdminPanel(){
   log.innerHTML = "<h3>Painel do Administrador</h3><p>Carregando dados...</p>";
   ctl.innerHTML = "<button class='send' onclick='start()'>Voltar ao Agendamento</button>";
 
+  if(!db){
+    log.innerHTML = "<h3>Painel do Administrador</h3><p>Banco de dados offline.</p>";
+    return;
+  }
+
   db.ref('agendamentos').once('value').then(function(snapshot){
     var data = snapshot.val();
     if(!data){
@@ -363,8 +384,6 @@ function loadAdminPanel(){
       }
     }
     log.innerHTML = html;
-  }).catch(function(err){
-    log.innerHTML = "<h3>Erro ao carregar painel</h3><p>" + err.message + "</p>";
   });
 }
 

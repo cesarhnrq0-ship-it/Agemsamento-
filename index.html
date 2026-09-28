@@ -5,42 +5,331 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Barbearia Di'Quebrada — Agendamento</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800;900&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#ECE9F1;--card:#fff;--ink:#2A1B3D;--mute:#6B607A;--line:#D9D3E3;--acc:#2A1B3D;--acc-ink:#fff;--pop:#7FD1B9;--pop-ink:#123;--danger:#C0392B}
-@media (prefers-color-scheme:dark){:root{--bg:#181120;--card:#241A30;--ink:#F1ECF7;--mute:#A79CB8;--line:#3A2E4A;--acc:#7FD1B9;--acc-ink:#123;--danger:#E74C3C}}
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.45 system-ui,-apple-system,sans-serif;display:flex;flex-direction:column;height:100vh}
-header{padding:14px 16px;border-bottom:1px solid var(--line);background:var(--card);display:flex;justify-content:space-between;align-items:center}
-header b{font-size:18px}header div{color:var(--mute);font-size:13px}
-#log{flex:1;overflow-y:auto;padding:16px;max-width:640px;width:100%;margin:0 auto;scroll-behavior:smooth}
-.m{max-width:85%;padding:10px 13px;border-radius:16px;margin:0 0 10px;white-space:pre-line}
-.bot{background:var(--card);border:1px solid var(--line);border-bottom-left-radius:4px}
-.me{background:var(--acc);color:var(--acc-ink);margin-left:auto;border-bottom-right-radius:4px}
-#dock{border-top:1px solid var(--line);background:var(--card);padding:12px 16px;max-height:50vh;overflow-y:auto}
-#dock>div{max-width:640px;margin:0 auto}
-.chips{display:flex;flex-wrap:wrap;gap:8px}
-button,input{font:inherit}
-.chip{background:transparent;color:var(--ink);border:1.5px solid var(--line);border-radius:999px;padding:12px 16px;cursor:pointer;touch-action:manipulation;font-size:15px}
-.chip:disabled{opacity:.4;text-decoration:line-through;cursor:not-allowed}
-.chip:active{background:var(--line)}
-form{display:flex;flex-direction:column;gap:8px}
-input{color:var(--ink);background:transparent;border:1.5px solid var(--line);border-radius:10px;padding:12px;font-size:16px}
-.send{background:var(--acc);color:var(--acc-ink);border:0;border-radius:10px;padding:12px;font-weight:600;cursor:pointer;font-size:16px}
-a.wa, a.cal, button.del-btn{display:block;text-align:center;text-decoration:none;font-weight:600;padding:12px;border-radius:10px;margin-top:8px;width:100%;border:none;font-size:14px;cursor:pointer}
-a.wa{background:var(--pop);color:var(--pop-ink)}
-a.cal{background:var(--acc);color:var(--acc-ink)}
-button.del-btn{background:var(--danger);color:#fff}
-.err{color:var(--danger);font-size:14px;margin:0}
-.admin-btn{background:none;border:none;color:var(--mute);font-size:12px;cursor:pointer;text-decoration:underline}
+:root {
+  --bg: #0d0d11;
+  --card: #181820;
+  --card-border: #2a2a36;
+  --ink: #f0f0f5;
+  --mute: #8e8e9f;
+  --accent: #ffd700; /* Dourado / Ouro */
+  --accent-ink: #000000;
+  --neon-green: #25d366;
+  --neon-blue: #0088cc;
+  --danger: #ff4757;
+  --font-main: 'Montserrat', system-ui, -apple-system, sans-serif;
+}
 
-.admin-card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:12px;display:flex;flex-direction:column;gap:6px}
-.admin-card-head{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);padding-bottom:6px;font-weight:bold}
-.admin-card-body{font-size:14px;color:var(--mute)}
-.admin-card-body b{color:var(--ink)}
-.btn-card-del{background:var(--danger);color:#fff;border:none;padding:8px;border-radius:8px;cursor:pointer;font-weight:bold;margin-top:6px;font-size:13px}
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
 
-#modal-admin{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);align-items:center;justify-content:center;z-index:999}
-.modal-content{background:var(--card);padding:20px;border-radius:12px;max-width:320px;width:90%;display:flex;flex-direction:column;gap:12px;border:1px solid var(--line)}
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-main);
+  font-size: 15px;
+  line-height: 1.4;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-image: radial-gradient(circle at 50% 0%, #1f1d2b 0%, var(--bg) 70%);
+}
+
+header {
+  padding: 16px;
+  border-bottom: 1px solid var(--card-border);
+  background: rgba(24, 24, 32, 0.85);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.brand-icon {
+  font-size: 24px;
+}
+
+header b {
+  font-size: 19px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  background: linear-gradient(45deg, #fff, var(--accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+header div.sub {
+  color: var(--mute);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+#log {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  max-width: 640px;
+  width: 100%;
+  margin: 0 auto;
+  scroll-behavior: smooth;
+}
+
+.m {
+  max-width: 85%;
+  padding: 12px 16px;
+  border-radius: 18px;
+  margin: 0 0 12px;
+  white-space: pre-line;
+  font-size: 15px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.bot {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-bottom-left-radius: 4px;
+  color: var(--ink);
+}
+
+.me {
+  background: linear-gradient(135deg, var(--accent), #ffaa00);
+  color: var(--accent-ink);
+  margin-left: auto;
+  border-bottom-right-radius: 4px;
+  font-weight: 600;
+}
+
+#dock {
+  border-top: 1px solid var(--card-border);
+  background: rgba(24, 24, 32, 0.95);
+  backdrop-filter: blur(10px);
+  padding: 16px;
+  max-height: 50vh;
+  overflow-y: auto;
+}
+
+#dock > div {
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+button, input {
+  font-family: var(--font-main);
+}
+
+.chip {
+  background: var(--card);
+  color: var(--ink);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  padding: 12px 18px;
+  cursor: pointer;
+  touch-action: manipulation;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.chip:not(:disabled):active {
+  transform: scale(0.96);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.chip:disabled {
+  opacity: 0.3;
+  text-decoration: line-through;
+  cursor: not-allowed;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+input {
+  color: var(--ink);
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  padding: 14px;
+  font-size: 15px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+input:focus {
+  border-color: var(--accent);
+}
+
+.send {
+  background: linear-gradient(135deg, var(--accent), #ffaa00);
+  color: #000;
+  border: 0;
+  border-radius: 12px;
+  padding: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  font-size: 15px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 15px rgba(255, 215, 0, 0.2);
+}
+
+a.wa, a.cal, button.cal, button.del-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-align: center;
+  text-decoration: none;
+  font-weight: 700;
+  padding: 14px;
+  border-radius: 12px;
+  margin-top: 10px;
+  width: 100%;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+
+a.wa:active, a.cal:active, button.cal:active, button.del-btn:active {
+  transform: scale(0.98);
+}
+
+a.wa {
+  background: var(--neon-green);
+  color: #000;
+}
+
+a.cal, button.cal {
+  background: var(--card);
+  color: var(--ink);
+  border: 1px solid var(--card-border);
+}
+
+a.cal-google {
+  background: var(--neon-blue);
+  color: #fff;
+}
+
+button.del-btn {
+  background: rgba(255, 71, 87, 0.15);
+  color: var(--danger);
+  border: 1px solid var(--danger);
+}
+
+.err {
+  color: var(--danger);
+  font-size: 13px;
+  margin: 0;
+}
+
+.admin-btn {
+  background: none;
+  border: none;
+  color: var(--mute);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  text-transform: uppercase;
+}
+
+.admin-card {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.admin-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--card-border);
+  padding-bottom: 8px;
+  font-weight: 800;
+  color: var(--accent);
+}
+
+.admin-card-body {
+  font-size: 14px;
+  color: var(--mute);
+  line-height: 1.6;
+}
+
+.admin-card-body b {
+  color: var(--ink);
+}
+
+.btn-card-del {
+  background: var(--danger);
+  color: #fff;
+  border: none;
+  padding: 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 700;
+  margin-top: 8px;
+  font-size: 13px;
+}
+
+#modal-admin {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.8);
+  backdrop-filter: blur(5px);
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.modal-content {
+  background: var(--card);
+  padding: 24px;
+  border-radius: 16px;
+  max-width: 320px;
+  width: 90%;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  border: 1px solid var(--card-border);
+}
 </style>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -49,11 +338,14 @@ button.del-btn{background:var(--danger);color:#fff}
 <body>
 
 <header>
-  <div>
-    <b>Barbearia Di'Quebrada</b>
-    <div>Assistente de agendamento</div>
+  <div class="brand">
+    <span class="brand-icon">💈</span>
+    <div>
+      <b>Barbearia Di'Quebrada</b>
+      <div class="sub">Agendamento Online</div>
+    </div>
   </div>
-  <button class="admin-btn" onclick="showAdminModal()">Área do Admin</button>
+  <button class="admin-btn" onclick="showAdminModal()">Admin</button>
 </header>
 
 <div id="log" aria-live="polite"></div>
@@ -61,7 +353,7 @@ button.del-btn{background:var(--danger);color:#fff}
 
 <div id="modal-admin">
   <div class="modal-content">
-    <b>Acesso Administrador</b>
+    <b style="font-size:18px; text-transform:uppercase;">Acesso do Barbeiro</b>
     <input type="password" id="admin-pass-input" placeholder="Digite a senha">
     <p class="err" id="admin-err"></p>
     <button class="send" onclick="checkAdminPass()">Entrar</button>
@@ -142,10 +434,10 @@ function askMulti(fields,cb){
 function start(){
   S={};
   log.innerHTML = "";
-  say("Oi! Eu sou o assistente da Barbearia Di'Quebrada. O que gostaria de fazer?");
+  say("Salve! Seja bem-vindo à Barbearia Di'Quebrada! 💈\nComo posso te ajudar hoje?");
   chips([
-    {t:"Agendar novo horário", act:"new"},
-    {t:"Cancelar meu agendamento", act:"cancel"}
+    {t:"✂️ Mandar aquele corte (Agendar)", act:"new"},
+    {t:"❌ Cancelar meu agendamento", act:"cancel"}
   ], function(it){
     if(it.act === "new") selectService();
     else cancelByClient();
@@ -153,12 +445,12 @@ function start(){
 }
 
 function selectService(){
-  say("Qual serviço você quer?");
+  say("Qual o serviço de hoje?");
   chips(SV.map(function(s,i){return{t:s[0]+" · R$ "+s[1],i:i}}),function(it){S.svc=SV[it.i];pickDay()});
 }
 
 function pickDay(){
-  say("Ótimo, "+S.svc[0]+". Para qual dia?");
+  say("Fechou! "+S.svc[0]+". Qual dia fica melhor pra você?");
   var days=[], base = new Date();
   base.setHours(0,0,0,0);
 
@@ -186,7 +478,7 @@ function pickTime(){
       items.push({t: t, off: past});
     }
 
-    say("Horários disponíveis em " + lbl(d) + ":");
+    say("Escolha o melhor horário para " + lbl(d) + ":");
     chips(items, function(it){
       S.time = it.t;
       getUserData();
@@ -197,10 +489,10 @@ function pickTime(){
 }
 
 function getUserData(){
-  say("Por favor, informe seu Nome, E-mail e WhatsApp:");
+  say("Para finalizar, me manda seu Nome, E-mail e WhatsApp:");
   askMulti([
     {key:"nome", ph:"Seu nome completo"},
-    {key:"email", ph:"Seu e-mail", type:"email"},
+    {key:"email", ph:"Seu melhor e-mail", type:"email"},
     {key:"tel", ph:"Seu WhatsApp (ex: 11999999999)", type:"tel"}
   ], function(inputs){
     S.nome = inputs.nome.value.trim();
@@ -212,8 +504,8 @@ function getUserData(){
 }
 
 function confirm2(){
-  say("Confira os dados:\n• Serviço: "+S.svc[0]+"\n• Data: "+lbl(S.date)+" às "+S.time+"\n• Cliente: "+S.nome+"\n• E-mail: "+S.email+"\n\nConfirmar agendamento?");
-  chips([{t:"Sim, confirmar",ok:1},{t:"Começar de novo",ok:0}],function(it){
+  say("Dá uma conferida se tá tudo certo:\n\n• Serviço: "+S.svc[0]+"\n• Data: "+lbl(S.date)+" às "+S.time+"\n• Cliente: "+S.nome+"\n• E-mail: "+S.email+"\n\nPodemos confirmar?");
+  chips([{t:"🔥 Confirmar Agendamento",ok:1},{t:"🔄 Recomeçar",ok:0}],function(it){
     if(it.ok) saveAndFinish(); else start();
   });
 }
@@ -230,7 +522,7 @@ function saveAndFinish(){
     } catch(e){}
   }
   
-  say("Agendamento concluído! O horário foi reservado com sucesso.");
+  say("Tudo pronto! Seu horário tá garantido na régua 📐");
   
   var m="Olá! Agendei pelo site:\n\nNome: "+S.nome+"\nE-mail: "+S.email+"\nServiço: "+S.svc[0]+"\nDia: "+lbl(S.date)+" às "+S.time;
   
@@ -241,7 +533,6 @@ function saveAndFinish(){
   
   var fmt = function(d){ return d.toISOString().replace(/-|:|\.\d+/g, ""); };
 
-  // Google Calendar URL
   var gCalUrl = "https://calendar.google.com/calendar/render?action=TEMPLATE" +
                 "&text=" + encodeURIComponent(S.svc[0] + " - Barbearia Di'Quebrada") +
                 "&dates=" + fmt(dtStart) + "/" + fmt(dtEnd) +
@@ -250,17 +541,17 @@ function saveAndFinish(){
 
   ctl.innerHTML="";
   
-  // 1. WhatsApp Button
+  // 1. WhatsApp
   var aWa = document.createElement("a");
   aWa.className = "wa"; aWa.target = "_blank";
   aWa.href = "https://wa.me/" + SALON + "?text=" + encodeURIComponent(m);
-  aWa.textContent = "💬 Enviar confirmação no WhatsApp";
+  aWa.innerHTML = "💬 Enviar confirmação no WhatsApp";
   ctl.appendChild(aWa);
 
-  // 2. Apple / iPhone Native Calendar Button
+  // 2. iPhone
   var btnIos = document.createElement("button");
   btnIos.className = "cal";
-  btnIos.textContent = " Adicionar ao iPhone (Lembretes / Agenda)";
+  btnIos.innerHTML = "📅 Adicionar ao iPhone (Lembretes)";
   btnIos.onclick = function() {
     var icsContent = 
       "BEGIN:VCALENDAR\n" +
@@ -290,25 +581,24 @@ function saveAndFinish(){
   };
   ctl.appendChild(btnIos);
 
-  // 3. Android / Google Calendar Button
+  // 3. Android
   var aAndroid = document.createElement("a");
-  aAndroid.className = "cal";
+  aAndroid.className = "cal cal-google";
   aAndroid.target = "_blank";
   aAndroid.href = gCalUrl;
-  aAndroid.style.background = "#4285F4";
-  aAndroid.textContent = "🤖 Adicionar ao Android (Google Agenda)";
+  aAndroid.innerHTML = "📅 Adicionar ao Google Agenda";
   ctl.appendChild(aAndroid);
 
-  // 4. Cancel Button
+  // 4. Cancelar
   var btnCancel = document.createElement("button");
   btnCancel.className = "del-btn";
-  btnCancel.textContent = "❌ Cancelar este Agendamento";
+  btnCancel.innerHTML = "❌ Cancelar este Agendamento";
   btnCancel.onclick = function(){ deleteBooking(dateKey, timeKey, true); };
   ctl.appendChild(btnCancel);
 }
 
 function cancelByClient(){
-  say("Para cancelar, informe o seu WhatsApp com DDD:");
+  say("Para cancelar, me manda o seu WhatsApp com DDD:");
   askMulti([{key:"tel", ph:"Ex: 11999999999", type:"tel"}], function(inputs){
     var searchTel = inputs.tel.value.replace(/\D/g,"");
     say(searchTel, "me");
@@ -334,13 +624,13 @@ function cancelByClient(){
       }
 
       if(found.length === 0){
-        say("Nenhum agendamento encontrado para este número.");
+        say("Não encontrei nenhum agendamento para esse número.");
         chips([{t:"Tentar outro número", act:"retry"}, {t:"Voltar ao início", act:"home"}], function(it){
           if(it.act === "retry") cancelByClient();
           else start();
         });
       } else {
-        say("Encontramos os seguintes agendamentos:");
+        say("Encontrei esses agendamentos no seu número:");
         ctl.innerHTML = "";
         found.forEach(function(item){
           var btn = document.createElement("button");
@@ -357,16 +647,16 @@ function cancelByClient(){
 }
 
 function deleteBooking(dateKey, timeKey, isClient){
-  if(confirm("Tem certeza que deseja cancelar e liberar este horário?")){
+  if(confirm("Tem certeza que deseja cancelar e liberar esse horário?")){
     if(db){
       db.ref('agendamentos/' + dateKey + '/' + timeKey).remove().then(function(){
-        alert("Agendamento cancelado com sucesso!");
+        alert("Agendamento cancelado!");
         if(isClient) start(); else loadAdminPanel();
       }).catch(function(err){
         alert("Erro ao cancelar: " + err.message);
       });
     } else {
-      alert("Erro de conexão com a base de dados.");
+      alert("Erro de conexão com o banco de dados.");
     }
   }
 }
@@ -392,18 +682,18 @@ function checkAdminPass(){
 }
 
 function loadAdminPanel(){
-  log.innerHTML = "<h3>Painel do Administrador</h3><p>Carregando dados...</p>";
-  ctl.innerHTML = "<button class='send' onclick='start()'>Voltar ao Agendamento</button>";
+  log.innerHTML = "<h3>Painel do Barbeiro</h3><p>Buscando agendamentos...</p>";
+  ctl.innerHTML = "<button class='send' onclick='start()'>Voltar ao Início</button>";
 
   if(!db){
-    log.innerHTML = "<h3>Painel do Administrador</h3><p>Banco de dados offline.</p>";
+    log.innerHTML = "<h3>Painel do Barbeiro</h3><p>Banco de dados offline.</p>";
     return;
   }
 
   db.ref('agendamentos').once('value').then(function(snapshot){
     var data = snapshot.val();
     if(!data){
-      log.innerHTML = "<h3>Painel do Administrador</h3><p>Nenhum agendamento realizado ainda.</p>";
+      log.innerHTML = "<h3>Painel do Barbeiro</h3><p>Nenhum agendamento ativo.</p>";
       return;
     }
     
@@ -419,7 +709,7 @@ function loadAdminPanel(){
                     "<b>WhatsApp:</b> " + item.tel + "<br>" +
                     "<b>E-mail:</b> " + item.email +
                   "</div>" +
-                  "<button class='btn-card-del' onclick=\"deleteBooking('"+day+"','"+time+"',false)\">🗑️ Excluir / Cancelar</button>" +
+                  "<button class='btn-card-del' onclick=\"deleteBooking('"+day+"','"+time+"',false)\">🗑️ Liberar Horário</button>" +
                 "</div>";
       }
     }

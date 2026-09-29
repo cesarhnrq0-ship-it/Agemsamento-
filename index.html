@@ -1,7 +1,3 @@
-Código atualizado com o número **11989448738** configurado para receber todas as confirmações de agendamento via WhatsApp.
-
-Substitua todo o conteúdo do seu arquivo **`index.html`** por este:
-
 ```html
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -539,22 +535,20 @@ function pickTime(){
 }
 
 function getUserData(){
-  say("Para finalizar, me manda seu Nome, E-mail e WhatsApp:");
+  say("Para finalizar, me manda seu Nome e WhatsApp:");
   askMulti([
     {key:"nome", ph:"Seu nome completo"},
-    {key:"email", ph:"Seu melhor e-mail", type:"email"},
     {key:"tel", ph:"Seu WhatsApp (ex: 11999999999)", type:"tel"}
   ], function(inputs){
     S.nome = inputs.nome.value.trim();
-    S.email = inputs.email.value.trim();
     S.tel = inputs.tel.value.replace(/\D/g,"");
-    say(S.nome + " | " + S.email + " | " + S.tel, "me");
+    say(S.nome + " | " + S.tel, "me");
     confirm2();
   });
 }
 
 function confirm2(){
-  say("Dá uma conferida se tá tudo certo:\n\n• Serviço: "+S.svc[0]+"\n• Data: "+lbl(S.date)+" às "+S.time+"\n• Cliente: "+S.nome+"\n• E-mail: "+S.email+"\n\nPodemos confirmar?");
+  say("Dá uma conferida se tá tudo certo:\n\n• Serviço: "+S.svc[0]+"\n• Data: "+lbl(S.date)+" às "+S.time+"\n• Cliente: "+S.nome+"\n• WhatsApp: "+S.tel+"\n\nPodemos confirmar?");
   chips([{t:"🔥 Confirmar Agendamento",ok:1},{t:"🔄 Recomeçar",ok:0}],function(it){
     if(it.ok) saveAndFinish(); else start();
   });
@@ -567,14 +561,14 @@ function saveAndFinish(){
   if(db){
     try {
       db.ref('agendamentos/' + dateKey + '/' + timeKey).set({
-        nome: S.nome, email: S.email, tel: S.tel, servico: S.svc[0], preco: S.svc[1], data: lbl(S.date), hora: S.time
+        nome: S.nome, tel: S.tel, servico: S.svc[0], preco: S.svc[1], data: lbl(S.date), hora: S.time
       });
     } catch(e){}
   }
   
   say("Tudo pronto! Seu horário tá garantido na régua 📐");
   
-  var m="Olá! Agendei pelo site:\n\nNome: "+S.nome+"\nE-mail: "+S.email+"\nServiço: "+S.svc[0]+"\nDia: "+lbl(S.date)+" às "+S.time;
+  var m="Olá! Agendei pelo site:\n\nNome: "+S.nome+"\nServiço: "+S.svc[0]+"\nDia: "+lbl(S.date)+" às "+S.time;
   
   var h = parseInt(S.time.split(":")[0]);
   var min = parseInt(S.time.split(":")[1]);
@@ -756,8 +750,7 @@ function loadAdminPanel(){
                   "<div class='admin-card-body'>" +
                     "<b>Cliente:</b> " + item.nome + "<br>" +
                     "<b>Serviço:</b> " + item.servico + "<br>" +
-                    "<b>WhatsApp:</b> " + item.tel + "<br>" +
-                    "<b>E-mail:</b> " + item.email +
+                    "<b>WhatsApp:</b> " + item.tel +
                   "</div>" +
                   "<button class='btn-card-del' onclick=\"deleteBooking('"+day+"','"+time+"',false)\">🗑️ Liberar Horário</button>" +
                 "</div>";

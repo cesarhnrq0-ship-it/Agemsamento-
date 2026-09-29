@@ -1,10 +1,14 @@
+Código atualizado com o nome **Barbearia Wilkei LC** em todos os locais (título, cabeçalho, mensagens do bot, links de confirmação e eventos do calendário).
+
+Substitua todo o conteúdo do seu arquivo **`index.html`** por este:
+
 ```html
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<title>Barbearia Di'Quebrada — Agendamento</title>
+<title>Barbearia Wilkei LC — Agendamento</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800;900&display=swap" rel="stylesheet">
@@ -359,7 +363,7 @@ button.del-btn {
   <div class="brand">
     <span class="brand-icon">💈</span>
     <div>
-      <b>Barbearia Di'Quebrada</b>
+      <b>Barbearia Wilkei LC</b>
       <div class="sub">Agendamento Online</div>
     </div>
   </div>
@@ -461,7 +465,7 @@ function askMulti(fields,cb){
 function start(){
   S={};
   log.innerHTML = "";
-  say("Salve! Seja bem-vindo à Barbearia Di'Quebrada! 💈\nComo posso te ajudar hoje?");
+  say("Salve! Seja bem-vindo à Barbearia Wilkei LC! 💈\nComo posso te ajudar hoje?");
   chips([
     {t:"✂️ Mandar aquele corte (Agendar)", act:"new"},
     {t:"❌ Cancelar meu agendamento", act:"cancel"}
@@ -580,10 +584,10 @@ function saveAndFinish(){
   var fmt = function(d){ return d.toISOString().replace(/-|:|\.\d+/g, ""); };
 
   var gCalUrl = "https://calendar.google.com/calendar/render?action=TEMPLATE" +
-                "&text=" + encodeURIComponent(S.svc[0] + " - Barbearia Di'Quebrada") +
+                "&text=" + encodeURIComponent(S.svc[0] + " - Barbearia Wilkei LC") +
                 "&dates=" + fmt(dtStart) + "/" + fmt(dtEnd) +
-                "&details=" + encodeURIComponent("Agendamento na Barbearia Di'Quebrada") +
-                "&location=" + encodeURIComponent("Barbearia Di'Quebrada");
+                "&details=" + encodeURIComponent("Agendamento na Barbearia Wilkei LC") +
+                "&location=" + encodeURIComponent("Barbearia Wilkei LC");
 
   ctl.innerHTML="";
   
@@ -602,11 +606,11 @@ function saveAndFinish(){
     var icsContent = 
       "BEGIN:VCALENDAR\n" +
       "VERSION:2.0\n" +
-      "PRODID:-//Barbearia DiQuebrada//PT\n" +
+      "PRODID:-//Barbearia Wilkei LC//PT\n" +
       "BEGIN:VEVENT\n" +
-      "SUMMARY:" + S.svc[0] + " - Barbearia Di'Quebrada\n" +
-      "DESCRIPTION:Seu agendamento na Barbearia Di'Quebrada está confirmado.\n" +
-      "LOCATION:Barbearia Di'Quebrada\n" +
+      "SUMMARY:" + S.svc[0] + " - Barbearia Wilkei LC\n" +
+      "DESCRIPTION:Seu agendamento na Barbearia Wilkei LC está confirmado.\n" +
+      "LOCATION:Barbearia Wilkei LC\n" +
       "DTSTART:" + fmt(dtStart) + "\n" +
       "DTEND:" + fmt(dtEnd) + "\n" +
       "BEGIN:VALARM\n" +

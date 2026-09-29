@@ -1,7 +1,3 @@
-Código atualizado com o nome **Barbearia Wilkei LC** em todos os locais (título, cabeçalho, mensagens do bot, links de confirmação e eventos do calendário).
-
-Substitua todo o conteúdo do seu arquivo **`index.html`** por este:
-
 ```html
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -485,7 +481,8 @@ function pickDay(){
   var days=[], base = new Date();
   base.setHours(0,0,0,0);
 
-  for(var k=0; k<14 && days.length<10; k++){
+  /* Busca até 45 dias corridos para garantir 30 dias úteis (pulando domingos) */
+  for(var k=0; k<45 && days.length<30; k++){
     var d = new Date(base.getTime() + k*86400000);
     if(d.getDay() !== 0) days.push(d);
   }

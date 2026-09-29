@@ -1,3 +1,7 @@
+Código atualizado com o número **11989448738** configurado para receber todas as confirmações de agendamento via WhatsApp.
+
+Substitua todo o conteúdo do seu arquivo **`index.html`** por este:
+
 ```html
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -391,7 +395,7 @@ try {
   console.log("Firebase offline");
 }
 
-var SALON = "5511961604656";
+var SALON = "5511989448738";
 var ADMIN_PASS = "123456";
 var SV = [["Corte masculino", 40, 40], ["Corte com sobrancelha", 45, 45], ["Barba", 30, 30], ["Corte e barba", 65, 70], ["Pezinho", 15, 15]];
 var DOW = ["dom","seg","ter","qua","qui","sex","sáb"], MES = ["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"];
@@ -481,7 +485,6 @@ function pickDay(){
   var days=[], base = new Date();
   base.setHours(0,0,0,0);
 
-  /* Busca até 45 dias corridos para garantir 30 dias úteis (pulando domingos) */
   for(var k=0; k<45 && days.length<30; k++){
     var d = new Date(base.getTime() + k*86400000);
     if(d.getDay() !== 0) days.push(d);
